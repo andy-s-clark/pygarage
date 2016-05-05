@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>WebSocket Demo</title>
+        <style type="text/css">
+            #content {
+                border: 1px solid black;
+                overflow: auto;
+                height: 20em;
+            }
+            #content > p {
+                margin: 0;
+                border-bottom: 1px solid #eee;
+            }
+            ul.io {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+            ul.io > li {
+                margin: 0 0 1em 0;
+                padding: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <ul class="io">
+            <li>
+                <label for="ws_address">Host:Port</label>
+                <input type="text" id="ws_address" value="localhost:5678">
+                <button id="connect_action">Connect</button>
+                <button id="disconnect_action">Disconnect</button>
+            </li>
+            <li>
+                <label for="feedback">Send</label>
+                <input type="text" id="feedback" />
+            </li>
+            <li>
+                <label>Receive</label>
+                <div id="content"></div>
+            </li>
+        </ul>
+
+        <script>
+            var ws_address_el     = document.getElementById('ws_address'),
+                connect_action    = document.getElementById('connect_action'),
+                disconnect_action = document.getElementById('disconnect_action'),
+                content_el        = document.getElementById('content'),
+                feedback_el       = document.getElementById('feedback'),
+                ws;
+
+            var ws_connect = function(event) {
+                if (ws) {
+                    ws.close();
+                }
+                ws = new WebSocket('ws://'+ws_address_el.value+'/');
+                ws.addEventListener('message', function(event) {
+                    new_child = document.createElement('p');
+                    new_child.innerHTML = event.data;
+                    content_el.appendChild(new_child);
+                });
+            };
+
+            var ws_disconnect = function(event) {
+                if (ws) {
+                    ws.close();
+                }
+            };
+
+            var send_message = function(event) {
+                if (ws) {
+                    ws.send(feedback_el.value);
+                    feedback_el.value = '';
+                }
+            };
+
+            ws_address_el.addEventListener('change', ws_connect);
+            connect_action.addEventListener('click', ws_connect);
+            disconnect_action.addEventListener('click', ws_disconnect);
+            feedback_el.addEventListener('change', send_message);
+        </script>
+    </body>
+</html>
